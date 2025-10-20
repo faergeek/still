@@ -57,7 +57,7 @@ screencopy = [
 ]
 
 executable(
-    'still',
+    meson.project_name(),
     install: true,
     sources: [
         'array.c',
