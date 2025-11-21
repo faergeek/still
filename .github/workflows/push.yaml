@@ -20,7 +20,7 @@ jobs:
           - ubuntu-24.04-arm
           - ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: sudo apt-get install libpixman-1-dev libwayland-dev meson scdoc wayland-protocols
       - run: meson setup --buildtype release build
       - run: ninja -C build test
@@ -35,7 +35,7 @@ jobs:
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
