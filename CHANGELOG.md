@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## Unreleased
+
+### Fixes
+
+- don't stop an event loop to execute a command
+
 ## 0.0.7 (2025-10-08)
 
 ### Fixes

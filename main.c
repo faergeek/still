@@ -4,12 +4,16 @@
 #include "viewporter-client-protocol.h"
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 #include "wlr-screencopy-unstable-v1-client-protocol.h"
-#include <errno.h>
 #include <getopt.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wayland-client-protocol.h>
+#include <sys/poll.h>
+#include <sys/signalfd.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <wayland-client-core.h>
 
 static void registry_handle_global(void *data, struct wl_registry *wl_registry,
                                    uint32_t name, const char *interface,
@@ -131,52 +135,160 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
+  struct pollfd pollfds_array[2];
+  struct pollfd *sigchld_pollfd = &pollfds_array[0];
+  struct pollfd *wl_display_pollfd = &pollfds_array[1];
+
+  sigset_t sigset;
+  if (sigemptyset(&sigset) == -1) {
+    perror("ERROR: sigemptyset()");
+    return EXIT_FAILURE;
+  }
+
+  if (sigaddset(&sigset, SIGCHLD) == -1) {
+    perror("ERROR: sigaddset()");
+    return EXIT_FAILURE;
+  }
+
+  if (sigprocmask(SIG_BLOCK, &sigset, NULL) == -1) {
+    perror("ERROR: sigprocmask()");
+    return EXIT_FAILURE;
+  }
+
+  sigchld_pollfd->fd = signalfd(-1, &sigset, SFD_CLOEXEC | SFD_NONBLOCK);
+  sigchld_pollfd->events = POLLIN;
+
+  if (sigchld_pollfd->fd == -1) {
+    perror("ERROR: signalfd()");
+    return EXIT_FAILURE;
+  }
+
   globals.wl_display = wl_display_connect(NULL);
   if (!globals.wl_display) {
     fprintf(stderr, "ERROR: Failed to connect to a Wayland display\n");
     return EXIT_FAILURE;
   }
 
+  wl_display_pollfd->fd = wl_display_get_fd(globals.wl_display);
+  wl_display_pollfd->events = POLLIN;
+
   struct wl_registry *registry = wl_display_get_registry(globals.wl_display);
   wl_registry_add_listener(registry, &wl_registry_listener, &globals);
 
+  pid_t child_pid = -1;
   int status = 0;
   while (status == 0) {
-    if (wl_display_dispatch(globals.wl_display) == -1) {
-      fprintf(stderr, "ERROR: Failed to dispatch events: %s\n",
-              strerror(errno));
+    if (wl_display_prepare_read(globals.wl_display) == -1) {
+      perror("ERROR: wl_display_prepare_read()");
       status = EXIT_FAILURE;
       break;
     }
 
-    bool all_ready = true;
-    for (size_t i = 0; i < array_length(globals.overlays); i++) {
-      struct overlay *overlay = &globals.overlays[i];
+    if (wl_display_flush(globals.wl_display) == -1) {
+      perror("ERROR: wl_display_flush()");
+      status = EXIT_FAILURE;
+      break;
+    }
 
-      switch (overlay->capture_status) {
-      case PENDING:
-        wl_output_add_listener(overlay->wl_output, &output_listener, overlay);
-        capture(overlay_cursor, overlay);
-        all_ready = false;
-        break;
-      case WAITING:
-        all_ready = false;
-        break;
-      case READY:
-        break;
-      case FAILED:
+    if (poll(pollfds_array, sizeof(pollfds_array) / sizeof(pollfds_array[0]),
+             -1) == -1) {
+      perror("ERROR: poll()");
+      status = EXIT_FAILURE;
+      break;
+    }
+
+    if (wl_display_pollfd->revents & POLLIN) {
+      if (wl_display_read_events(globals.wl_display) == -1) {
+        perror("ERROR: wl_display_read_events()");
         status = EXIT_FAILURE;
-        all_ready = false;
         break;
+      }
+    } else {
+      wl_display_cancel_read(globals.wl_display);
+    }
+
+    if (wl_display_dispatch_pending(globals.wl_display) == -1) {
+      perror("ERROR: wl_display_dispatch_pending()");
+      status = EXIT_FAILURE;
+      break;
+    }
+
+    if (sigchld_pollfd->revents & POLLIN) {
+      struct signalfd_siginfo siginfo;
+      if (read(sigchld_pollfd->fd, &siginfo, sizeof(siginfo)) !=
+          sizeof(siginfo)) {
+        perror("read(signal_poll_fd->fd)");
+        status = EXIT_FAILURE;
+        break;
+      }
+
+      if (siginfo.ssi_signo == SIGCHLD) {
+        int wstatus;
+
+        if (waitpid(-1, &wstatus, WNOHANG) == -1) {
+          perror("ERROR: waitpid()");
+          status = EXIT_FAILURE;
+          break;
+        }
+
+        if (WIFEXITED(wstatus)) {
+          status = WEXITSTATUS(wstatus);
+          break;
+        }
+
+        if (WIFSIGNALED(wstatus)) {
+          psignal(WTERMSIG(wstatus),
+                  "ERROR: child has been terminated by a signal");
+          status = -1;
+          break;
+        }
       }
     }
 
-    if (all_ready) {
-      break;
+    if (child_pid == -1) {
+      bool all_ready = true;
+      for (size_t i = 0; i < array_length(globals.overlays); i++) {
+        struct overlay *overlay = &globals.overlays[i];
+
+        switch (overlay->capture_status) {
+        case PENDING:
+          wl_output_add_listener(overlay->wl_output, &output_listener, overlay);
+          capture(overlay_cursor, overlay);
+          all_ready = false;
+          break;
+        case WAITING:
+          all_ready = false;
+          break;
+        case READY:
+          break;
+        case FAILED:
+          status = EXIT_FAILURE;
+          all_ready = false;
+          break;
+        }
+      }
+
+      if (all_ready) {
+        child_pid = fork();
+
+        if (child_pid == -1) {
+          perror("ERROR: fork()");
+          status = EXIT_FAILURE;
+          break;
+        }
+
+        if (child_pid == 0) {
+          if (execl("/bin/sh", "sh", "-c", command, NULL) == -1) {
+            perror("ERROR: execl()");
+            status = EXIT_FAILURE;
+            break;
+          }
+        }
+      }
     }
   }
 
-  status = status || system(command);
+  close(sigchld_pollfd->fd);
 
   for (size_t i = 0; i < array_length(globals.overlays); i++) {
     overlay_destroy(&globals.overlays[i]);
