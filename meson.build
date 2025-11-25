@@ -1,7 +1,7 @@
 project(
     'still',
     'c',
-    version: '0.0.7',
+    version: '0.0.8',
     license: 'MIT',
     meson_version: '>=0.59.0',
     default_options: ['c_std=c11', 'warning_level=3', 'werror=true'],
