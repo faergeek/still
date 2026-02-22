@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## Unreleased
+
+### Fixes
+
+- avoid segfault if overlay wasn't created
+- add more pixel formats
+
 ## 0.0.8 (2025-11-25)
 
 ### Fixes

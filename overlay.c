@@ -81,8 +81,18 @@ void overlay_show(struct overlay *overlay) {
 
 void overlay_destroy(struct overlay *overlay) {
   buffer_destroy(overlay->buffer);
-  wp_viewport_destroy(overlay->wp_viewport);
-  wl_surface_destroy(overlay->wl_surface);
-  zwlr_layer_surface_v1_destroy(overlay->wlr_layer_surface);
+
+  if (overlay->wp_viewport) {
+    wp_viewport_destroy(overlay->wp_viewport);
+  }
+
+  if (overlay->wl_surface) {
+    wl_surface_destroy(overlay->wl_surface);
+  }
+
+  if (overlay->wlr_layer_surface) {
+    zwlr_layer_surface_v1_destroy(overlay->wlr_layer_surface);
+  }
+
   wl_output_release(overlay->wl_output);
 }

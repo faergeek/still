@@ -21,22 +21,65 @@ static void screencopy_handle_flags(
 
 static pixman_format_code_t wl2pixman_format(enum wl_shm_format wl_shm_format) {
   switch (wl_shm_format) {
-  case WL_SHM_FORMAT_ARGB8888:
-    return PIXMAN_a8r8g8b8;
-  case WL_SHM_FORMAT_XRGB8888:
-    return PIXMAN_x8r8g8b8;
-  case WL_SHM_FORMAT_XBGR8888:
-    return PIXMAN_x8b8g8r8;
+
+  case WL_SHM_FORMAT_ABGR1555:
+    return PIXMAN_a1b5g5r5;
+  case WL_SHM_FORMAT_ABGR4444:
+    return PIXMAN_a4b4g4r4;
   case WL_SHM_FORMAT_ABGR8888:
     return PIXMAN_a8b8g8r8;
-  case WL_SHM_FORMAT_XRGB2101010:
-    return PIXMAN_x2r10g10b10;
-  case WL_SHM_FORMAT_XBGR2101010:
-    return PIXMAN_x2b10g10r10;
-  case WL_SHM_FORMAT_ARGB2101010:
-    return PIXMAN_a2r10g10b10;
   case WL_SHM_FORMAT_ABGR2101010:
     return PIXMAN_a2b10g10r10;
+
+  case WL_SHM_FORMAT_ARGB1555:
+    return PIXMAN_a1r5g5b5;
+  case WL_SHM_FORMAT_ARGB4444:
+    return PIXMAN_a4r4g4b4;
+  case WL_SHM_FORMAT_ARGB8888:
+    return PIXMAN_a8r8g8b8;
+  case WL_SHM_FORMAT_ARGB2101010:
+    return PIXMAN_a2r10g10b10;
+
+  case WL_SHM_FORMAT_BGR233:
+    return PIXMAN_b2g3r3;
+  case WL_SHM_FORMAT_BGR565:
+    return PIXMAN_b5g6r5;
+  case WL_SHM_FORMAT_BGR888:
+    return PIXMAN_b8g8r8;
+  case WL_SHM_FORMAT_BGRA8888:
+    return PIXMAN_b8g8r8a8;
+  case WL_SHM_FORMAT_BGRX8888:
+    return PIXMAN_b8g8r8x8;
+
+  case WL_SHM_FORMAT_RGB332:
+    return PIXMAN_r3g3b2;
+  case WL_SHM_FORMAT_RGB565:
+    return PIXMAN_r5g6b5;
+  case WL_SHM_FORMAT_RGB888:
+    return PIXMAN_r8g8b8;
+  case WL_SHM_FORMAT_RGBA8888:
+    return PIXMAN_r8g8b8a8;
+  case WL_SHM_FORMAT_RGBX8888:
+    return PIXMAN_r8g8b8x8;
+
+  case WL_SHM_FORMAT_XBGR1555:
+    return PIXMAN_x1b5g5r5;
+  case WL_SHM_FORMAT_XBGR4444:
+    return PIXMAN_x4b4g4r4;
+  case WL_SHM_FORMAT_XBGR8888:
+    return PIXMAN_x8b8g8r8;
+  case WL_SHM_FORMAT_XBGR2101010:
+    return PIXMAN_x2b10g10r10;
+
+  case WL_SHM_FORMAT_XRGB1555:
+    return PIXMAN_x1r5g5b5;
+  case WL_SHM_FORMAT_XRGB4444:
+    return PIXMAN_x4r4g4b4;
+  case WL_SHM_FORMAT_XRGB8888:
+    return PIXMAN_x8r8g8b8;
+  case WL_SHM_FORMAT_XRGB2101010:
+    return PIXMAN_x2r10g10b10;
+
   default:
     return 0;
   }
