@@ -60,12 +60,12 @@ executable(
     meson.project_name(),
     install: true,
     sources: [
-        'array.c',
-        'buffer.c',
-        'capture.c',
-        'image.c',
-        'main.c',
-        'overlay.c',
+        'src/array.c',
+        'src/buffer.c',
+        'src/capture.c',
+        'src/image.c',
+        'src/main.c',
+        'src/overlay.c',
         xdg_shell,
         wp_viewporter,
         layer_shell,
@@ -83,7 +83,7 @@ if unity.found()
         'array',
         executable(
             'array.test',
-            sources: ['array.c', 'array.test.c'],
+            sources: ['src/array.c', 'src/array.test.c'],
             dependencies: [unity_dep],
         ),
     )
@@ -92,7 +92,7 @@ if unity.found()
         'image',
         executable(
             'image.test',
-            sources: ['image.c', 'image.test.c'],
+            sources: ['src/image.c', 'src/image.test.c'],
             dependencies: [math, pixman, unity_dep],
         ),
     )
