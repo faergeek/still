@@ -47,13 +47,13 @@ wp_viewporter = [
 ]
 
 layer_shell = [
-    proto_c.process('wlr-layer-shell-unstable-v1.xml'),
-    proto_h.process('wlr-layer-shell-unstable-v1.xml'),
+    proto_c.process('protocols/wlr-layer-shell-unstable-v1.xml'),
+    proto_h.process('protocols/wlr-layer-shell-unstable-v1.xml'),
 ]
 
 screencopy = [
-    proto_c.process('wlr-screencopy-unstable-v1.xml'),
-    proto_h.process('wlr-screencopy-unstable-v1.xml'),
+    proto_c.process('protocols/wlr-screencopy-unstable-v1.xml'),
+    proto_h.process('protocols/wlr-screencopy-unstable-v1.xml'),
 ]
 
 executable(
