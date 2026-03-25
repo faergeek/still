@@ -20,7 +20,7 @@ jobs:
           - ubuntu-24.04-arm
           - ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - run: sudo apt-get update && sudo apt-get install libpixman-1-dev libwayland-dev meson scdoc wayland-protocols
       - run: meson setup --buildtype release build
       - run: ninja -C build test
@@ -30,16 +30,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
         id: app-token
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
-      - uses: orhun/git-cliff-action@v4
+      - uses: orhun/git-cliff-action@c93ef52f3d0ddcdcc9bd5447d98d458a11cd4f72 # v4
         id: git-cliff
         with:
           args: --bump
