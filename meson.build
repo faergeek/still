@@ -8,7 +8,7 @@ project(
 )
 
 add_project_arguments(
-    ['-D_POSIX_C_SOURCE=200809L', '-Wno-unused-parameter'],
+    ['-D_XOPEN_SOURCE=700', '-Wno-unused-parameter'],
     language: 'c',
 )
 
@@ -47,25 +47,25 @@ wp_viewporter = [
 ]
 
 layer_shell = [
-    proto_c.process('wlr-layer-shell-unstable-v1.xml'),
-    proto_h.process('wlr-layer-shell-unstable-v1.xml'),
+    proto_c.process('protocols/wlr-layer-shell-unstable-v1.xml'),
+    proto_h.process('protocols/wlr-layer-shell-unstable-v1.xml'),
 ]
 
 screencopy = [
-    proto_c.process('wlr-screencopy-unstable-v1.xml'),
-    proto_h.process('wlr-screencopy-unstable-v1.xml'),
+    proto_c.process('protocols/wlr-screencopy-unstable-v1.xml'),
+    proto_h.process('protocols/wlr-screencopy-unstable-v1.xml'),
 ]
 
 executable(
     meson.project_name(),
     install: true,
     sources: [
-        'array.c',
-        'buffer.c',
-        'capture.c',
-        'image.c',
-        'main.c',
-        'overlay.c',
+        'src/array.c',
+        'src/buffer.c',
+        'src/capture.c',
+        'src/image.c',
+        'src/main.c',
+        'src/overlay.c',
         xdg_shell,
         wp_viewporter,
         layer_shell,
@@ -83,7 +83,7 @@ if unity.found()
         'array',
         executable(
             'array.test',
-            sources: ['array.c', 'array.test.c'],
+            sources: ['src/array.c', 'src/array.test.c'],
             dependencies: [unity_dep],
         ),
     )
@@ -92,7 +92,7 @@ if unity.found()
         'image',
         executable(
             'image.test',
-            sources: ['image.c', 'image.test.c'],
+            sources: ['src/image.c', 'src/image.test.c'],
             dependencies: [math, pixman, unity_dep],
         ),
     )
