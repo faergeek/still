@@ -1,8 +1,7 @@
 #include "image.h"
+#include <math.h>
 #include <pixman.h>
 #include <stdint.h>
-
-#define PI 3.14159265358979323846
 
 pixman_image_t *
 image_revert_wl_output_transform(pixman_image_t *src,
@@ -25,7 +24,7 @@ image_revert_wl_output_transform(pixman_image_t *src,
   pixman_f_transform_translate(&f_transform, NULL, -(double)src_width / 2,
                                -(double)src_height / 2);
 
-  double rotation_radians = PI * (wl_output_transform % 4) / 2.0;
+  double rotation_radians = M_PI * (wl_output_transform % 4) / 2.0;
   pixman_f_transform_rotate(&f_transform, NULL, round(cos(rotation_radians)),
                             round(sin(rotation_radians)));
 

@@ -8,7 +8,7 @@ project(
 )
 
 add_project_arguments(
-    ['-D_POSIX_C_SOURCE=200809L', '-Wno-unused-parameter'],
+    ['-D_XOPEN_SOURCE=700', '-Wno-unused-parameter'],
     language: 'c',
 )
 
