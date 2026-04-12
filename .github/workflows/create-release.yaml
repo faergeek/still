@@ -28,7 +28,7 @@ jobs:
         run: |
           meson setup --buildtype release build
           meson dist -C build --allow-dirty
-      - uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           body_path: /tmp/release-notes.md
           fail_on_unmatched_files: true
