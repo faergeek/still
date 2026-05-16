@@ -29,8 +29,10 @@ void *array_grow_if_needed(void *array, size_t element_size,
 
   size_t length = array_length(array);
 
+  size_t alloc_size = min_capacity * element_size;
+
   struct array_header *new_array =
-      malloc(sizeof(*new_array) + min_capacity * element_size);
+      malloc(sizeof(*new_array) + alloc_size);
 
   *new_array = (struct array_header){
       .capacity = min_capacity,
@@ -38,7 +40,8 @@ void *array_grow_if_needed(void *array, size_t element_size,
   };
 
   if (array) {
-    memcpy(new_array->contents, array, length * element_size);
+    size_t copy_size = length * element_size;
+    memcpy(new_array->contents, array, copy_size < alloc_size ? copy_size : alloc_size);
     array_free(array);
   }
 
