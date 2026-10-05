@@ -38,6 +38,10 @@ _swappy_(1) can also be used to annotate it right away:
 *-p*
 	Include a pointer (cursor) on a frozen screenshot.
 
+*-a*
+	Force an alpha channel on a frozen screenshot, so compositors can keep
+	rendering windows below it.
+
 # SEE ALSO
 
 _grim_(1) _slurp_(1) _swappy_(1)
