@@ -6,29 +6,18 @@ concurrency:
 permissions:
   contents: read
 jobs:
-  update-changelog:
+  changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
-        id: app-token
-        with:
-          client-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
-          token: ${{ steps.app-token.outputs.token }}
       - uses: orhun/git-cliff-action@a9a95522b26fe6403f7bb24031f21fb573d0f5ff # v4
+        id: git-cliff
+        with:
+          args: --no-exec --unreleased --strip all
         env:
-          OUTPUT: CHANGELOG.md
-      - name: update changelog
-        run: |
-          git add CHANGELOG.md
-
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-
-          if git commit -m 'chore: update changelog'; then
-            git push origin
-          fi
+          OUTPUT: /tmp/release-notes.md
+      - name: Print the changelog
+        run: cat "${{ steps.git-cliff.outputs.changelog }}"
