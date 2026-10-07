@@ -6,6 +6,8 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  build:
+    uses: ./.github/workflows/build.yaml
   changelog:
     runs-on: ubuntu-latest
     steps:

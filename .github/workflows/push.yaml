@@ -2,29 +2,15 @@ name: push
 on:
   push:
     branches:
-      - '**'
+      - "**"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   contents: read
 jobs:
   build:
-    name: build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-          - ubuntu-22.04
-          - ubuntu-22.04-arm
-          - ubuntu-24.04
-          - ubuntu-24.04-arm
-          - ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - run: sudo apt-get update && sudo apt-get install libpixman-1-dev libwayland-dev meson scdoc wayland-protocols
-      - run: meson setup --buildtype release build
-      - run: ninja -C build test
-      - run: ninja -C build
+    if: github.ref_name == github.event.repository.default_branch
+    uses: ./.github/workflows/build.yaml
   bump-version:
     if: github.ref_name == github.event.repository.default_branch
     needs: build
