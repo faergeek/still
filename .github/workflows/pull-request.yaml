@@ -6,13 +6,14 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  build:
+    uses: ./.github/workflows/build.yaml
   changelog:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-          ref: ${{ github.head_ref }}
       - uses: orhun/git-cliff-action@a9a95522b26fe6403f7bb24031f21fb573d0f5ff # v4
         id: git-cliff
         with:

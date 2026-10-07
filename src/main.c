@@ -97,7 +97,9 @@ void usage(FILE *restrict stream, const char bin_name[]) {
           "  -h           Show help message and quit\n"
           "  -c <command> Shell command, which will be executed via\n"
           "               \"sh -c <command>\" while the screen is frozen\n"
-          "  -p           Include a pointer (cursor) on a frozen screenshot\n",
+          "  -p           Include a pointer (cursor) on a frozen screenshot\n"
+          "  -a           Force an alpha channel on a frozen screenshot, so\n"
+          "               compositors can keep rendering windows below it\n",
           bin_name);
 }
 
@@ -112,8 +114,11 @@ int main(int argc, char *argv[]) {
   }
 
   int option;
-  while ((option = getopt(argc, argv, "c:hp")) != -1) {
+  while ((option = getopt(argc, argv, "ac:hp")) != -1) {
     switch (option) {
+    case 'a':
+      globals.force_alpha = true;
+      break;
     case 'c':
       command = optarg;
       break;

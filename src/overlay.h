@@ -14,6 +14,7 @@ struct globals {
   struct wp_viewporter *wp_viewporter;
   struct zwlr_layer_shell_v1 *wlr_layer_shell;
   struct zwlr_screencopy_manager_v1 *wlr_screencopy_manager;
+  bool force_alpha;
 };
 
 struct overlay {
