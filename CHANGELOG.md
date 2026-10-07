@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## 0.1.0 (2026-10-07)
+
+### Features
+
+- add -a to force an alpha channel on the frozen screenshot
+
 ## 0.0.10 (2026-08-12)
 
 ### Fixes
