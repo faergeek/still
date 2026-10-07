@@ -109,25 +109,24 @@ static void screencopy_handle_ready(
       screencopy_image, overlay->wl_output_transform);
   pixman_image_unref(screencopy_image);
 
-  uint32_t format = overlay->screencopy_buffer->format;
+  int32_t width = pixman_image_get_width(reverted_transform_image);
+  int32_t height = pixman_image_get_height(reverted_transform_image);
+  enum wl_shm_format format = overlay->screencopy_buffer->format;
   if (overlay->globals->force_alpha && PIXMAN_FORMAT_A(pixman_format) == 0) {
     // wl_shm says all renderers should support ARGB8888:
     // https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_shm-enum-format
-    int32_t width = pixman_image_get_width(reverted_transform_image);
-    int32_t height = pixman_image_get_height(reverted_transform_image);
+    format = WL_SHM_FORMAT_ARGB8888;
+
     pixman_image_t *argb_image =
         pixman_image_create_bits(PIXMAN_a8r8g8b8, width, height, NULL, 0);
     pixman_image_composite32(PIXMAN_OP_SRC, reverted_transform_image, NULL,
                              argb_image, 0, 0, 0, 0, 0, 0, width, height);
     pixman_image_unref(reverted_transform_image);
     reverted_transform_image = argb_image;
-    format = WL_SHM_FORMAT_ARGB8888;
   }
 
   overlay->buffer =
-      buffer_create(overlay->globals->wl_shm, format,
-                    pixman_image_get_width(reverted_transform_image),
-                    pixman_image_get_height(reverted_transform_image),
+      buffer_create(overlay->globals->wl_shm, format, width, height,
                     pixman_image_get_stride(reverted_transform_image));
 
   buffer_destroy_once_released(overlay->screencopy_buffer);
